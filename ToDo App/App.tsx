@@ -4,8 +4,8 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  ScrollView,
   Text,
+  FlatList,
 } from 'react-native';
 
 const App = () => {
@@ -13,9 +13,9 @@ const App = () => {
     Array<{id: number; text: string; completed: boolean}>
   >([]);
   const [text, setText] = useState('');
-  const [currentDate, setCurrentDate] = useState(getFormattedDate());
+  const [currentDate, setCurrentDate] = useState(setDate());
 
-  function getFormattedDate() {
+  function setDate() {
     const date = new Date();
     return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
   }
@@ -24,7 +24,7 @@ const App = () => {
     if (text.trim() !== '') {
       setTasks([...tasks, {id: tasks.length + 1, text, completed: false}]);
       setText('');
-      setCurrentDate(getFormattedDate());
+      setCurrentDate(setDate());
     }
   };
 
@@ -38,21 +38,24 @@ const App = () => {
         <Text style={styles.mainText}>To-Do</Text>
         <Text style={styles.date}>{currentDate}</Text>
       </View>
-      <ScrollView style={styles.taskList}>
-        {tasks.map(task => (
-          <View key={task.id} style={styles.task}>
+      <FlatList
+        style={styles.taskList}
+        data={tasks}
+        renderItem={({item}) => (
+          <View style={styles.task}>
             <View style={styles.taskContent}>
               <Text
-                style={task.completed ? styles.completedTask : styles.taskText}>
-                {task.text}
+                style={item.completed ? styles.completedTask : styles.taskText}>
+                {item.text}
               </Text>
             </View>
-            <TouchableOpacity onPress={() => deleteTask(task.id)}>
+            <TouchableOpacity onPress={() => deleteTask(item.id)}>
               <Text style={styles.deleteButton}>Delete</Text>
             </TouchableOpacity>
           </View>
-        ))}
-      </ScrollView>
+        )}
+        keyExtractor={item => item.id.toString()}
+      />
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
